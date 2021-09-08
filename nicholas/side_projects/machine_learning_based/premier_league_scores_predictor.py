@@ -10,6 +10,7 @@ from keras.layers import Dense
 
 pls = pd.read_csv("C:/Users/N0009/Documents/pls/premleaguescores.csv")
 
+# making a dictionary to assign numerical ranks to each team for accessibility
 premdict = {
     "Man City":1,
     "Man United":2,
@@ -33,6 +34,7 @@ premdict = {
     "Sheffield United":20
 }
 
+# converting the spreadsheet columns into lists that can be accessed by ML
 home_team_list = pls['HomeTeam'].tolist()
 for i in range(len(home_team_list)):
     home_team_list[i] = float(premdict[home_team_list[i]])
@@ -43,6 +45,7 @@ for i in range(len(away_team_list)):
     away_team_list[i] = float(premdict[away_team_list[i]])
 away_team_list = np.array(away_team_list)
 
+# combining the 2 lists to make a list of matches which can be trained on
 match_list = [list(x) for x in zip(home_team_list, away_team_list)]
 
 scores = pls['WDL'].tolist()
@@ -50,6 +53,7 @@ score_list = []
 for score in scores:
     score_list.append([score])
 
+# making the neural network model
 model = Sequential()
 model.add(Dense(100,input_dim=2, activation = 'relu'))
 model.add(Dense(50, activation = 'relu'))
@@ -57,13 +61,16 @@ model.add(Dense(50, activation = 'relu'))
 model.add(Dense(1, activation = 'sigmoid'))
 model.compile(loss = 'mean_squared_error', optimizer = 'adam', metrics = ['accuracy'])
 
+#parameters of the training
 model.fit(match_list,score_list,epochs=500, batch_size=3)
+
 
 prem_team_list = list(premdict.keys())
 twenty_list = []
 for i in range(1,21):
     twenty_list.append("{}".format(i))
 
+# user interaction (inputting team to view their predictions)
 is_team_selected = False
 while(is_team_selected != True):
     team_selected = input("Select Team Name or Rank: ")
@@ -78,8 +85,10 @@ while(is_team_selected != True):
     else:
         print("Invalid Choice")
 
+# accommodating the zero indexing
 team = team + 1
 
+# printing the prediction vs the actual result
 for i in range(1,21):
     if (i!= int(team)):
         print("----------------------------------------------------------------")
